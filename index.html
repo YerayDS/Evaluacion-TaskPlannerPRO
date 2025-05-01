@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task & Event Planner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Task & Event Planner</h1>
+  </header>
+  <main>
+    
+    <!-- Sección de Tareas -->
+    <section id="task-section" class="section tasks">
+      <h2>Create a New Task</h2>
+      <form id="task-form">
+        <input type="text" id="task-title" placeholder="Task Name" required />
+        <textarea id="task-desc" placeholder="Task Description"></textarea>
+        <input type="date" id="task-date" required />
+        <select id="task-status">
+          <option value="pending">Pending</option>
+          <option value="inprogress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+        <button type="submit">Add Task</button>
+      </form>
+
+      <div id="task-filter-container">
+        <label for="task-filter">Filter Tasks:</label>
+        <select id="task-filter" onchange="filterTasks()">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="inprogress">In Progress</option>
+            <option value="completed">Completed</option>
+        </select>
+    </div>
+    
+    
+
+      <div class="task-columns">
+        <div id="pending-column" class="task-column">
+          <h2>Pending</h2>
+          <div id="pending-tasks"></div>
+        </div>
+        <div id="inprogress-column" class="task-column">
+          <h2>In Progress</h2>
+          <div id="inprogress-tasks"></div>
+        </div>
+        <div id="completed-column" class="task-column">
+          <h2>Completed</h2>
+          <div id="completed-tasks"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección de Eventos -->
+    <section id="event-section" class="section events">
+      <h2>Create a New Event</h2>
+      <form id="event-form">
+        <input type="text" id="event-title" placeholder="Event Title" required />
+        <textarea id="event-desc" placeholder="Event Description"></textarea>
+        <input type="date" id="event-date" required />
+        <label for="event-time">Event Time</label>
+        <input type="time" id="event-time" required />
+        <button type="submit">Add Event</button>
+      </form>
+      <div id="event-list" class="event-list"></div>
+    </section>
+
+    <!-- Sección de Noticias -->
+    <section id="news-section" class="section news">
+      <h2>Latest News</h2>
+      <div id="news-container"></div>
+    </section>
+
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
