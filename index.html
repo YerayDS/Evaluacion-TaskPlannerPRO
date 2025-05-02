@@ -35,10 +35,8 @@
             <option value="inprogress">In Progress</option>
             <option value="completed">Completed</option>
         </select>
-    </div>
+      </div>
     
-    
-
       <div class="task-columns">
         <div id="pending-column" class="task-column">
           <h2>Pending</h2>
@@ -75,7 +73,18 @@
       <div id="news-container"></div>
     </section>
 
+    <!-- Sección de Fotos -->
+    <section id="photo-section" class="section photos">
+      <h2>Upload a Photo</h2>
+      <form id="photo-form" enctype="multipart/form-data">
+        <input type="file" id="photo-upload" name="photo" accept="image/*" required />
+        <button type="submit">Upload Photo</button>
+      </form>
+    
+      <div id="photo-gallery" class="photo-gallery"></div> <!-- Galería para mostrar las fotos subidas -->
+    </section>
+
   </main>
-  <script src="app.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
