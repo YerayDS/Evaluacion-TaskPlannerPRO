@@ -2,6 +2,7 @@ import { events, saveEvents } from "../models/eventModel.js";
 import { getWeatherForEvent } from "../services/weatherService.js";
 import { handleError } from "../middlewares/errorHandler.js";
 
+// Función para añadir un nuevo evento
 export function handleEventSubmit(event) {
     event.preventDefault();
 
@@ -37,6 +38,7 @@ export function handleEventSubmit(event) {
     }
 }
 
+// Función para cargar los eventos
 export function loadEvents() {
     try {
         renderEvents();
@@ -45,6 +47,7 @@ export function loadEvents() {
     }
 }
 
+// Función para renderizar eventos
 function renderEvents() {
     try {
         const eventList = document.getElementById("event-list");
@@ -61,8 +64,13 @@ function renderEvents() {
                 <p>${event.description}</p>
                 <p><strong>Event Time:</strong> ${event.eventDate} ${event.eventTime}</p>
                 <p id="weather-info-${event.id}">Cargando clima...</p>
+                <div class="button-container">
+                    <button onclick="editEvent(${event.id})">Edit</button>
+                    <button onclick="deleteEvent(${event.id})">Delete</button>
+                </div>
             `;
 
+            // Obtener el clima para el evento
             getWeatherForEvent(event)
                 .then(weatherText => {
                     const weatherInfo = document.getElementById(`weather-info-${event.id}`);
@@ -76,5 +84,60 @@ function renderEvents() {
         });
     } catch (err) {
         handleError(err, "renderEvents");
+    }
+}
+
+// Función para eliminar un evento
+export function deleteEvent(id) {
+    try {
+        events.splice(0, events.length, ...events.filter(event => event.id !== id));
+        saveEvents();
+        renderEvents();
+    } catch (err) {
+        handleError(err, "deleteEvent");
+    }
+}
+
+// Función para editar un evento
+export function editEvent(id) {
+    try {
+        const event = events.find(event => event.id === id);
+        if (event) {
+            // Rellenar el formulario con los datos del evento
+            document.getElementById("event-title").value = event.title;
+            document.getElementById("event-desc").value = event.description;
+            document.getElementById("event-date").value = event.eventDate;
+            document.getElementById("event-time").value = event.eventTime;
+
+            // Cambiar el texto del botón de "Add Event" a "Update Event"
+            const eventForm = document.getElementById("event-form");
+            const submitButton = eventForm.querySelector("button");
+            submitButton.textContent = "Update Event";
+
+            // Cambiar el comportamiento del formulario para actualizar el evento
+            eventForm.onsubmit = function(e) {
+                e.preventDefault();
+                try {
+                    // Actualizar los datos del evento
+                    event.title = document.getElementById("event-title").value.trim();
+                    event.description = document.getElementById("event-desc").value.trim();
+                    event.eventDate = document.getElementById("event-date").value;
+                    event.eventTime = document.getElementById("event-time").value;
+                    event.eventDateTime = new Date(`${event.eventDate}T${event.eventTime}`); // Actualizar la fecha y hora
+
+                    saveEvents();
+                    renderEvents();
+                    eventForm.reset();
+                    submitButton.textContent = "Add Event"; // Restablecer el texto del botón
+                } catch (err) {
+                    handleError(err, "editEvent: update");
+                }
+            };
+
+            // Eliminar el evento original antes de editarlo
+            deleteEvent(id);
+        }
+    } catch (err) {
+        handleError(err, "editEvent");
     }
 }

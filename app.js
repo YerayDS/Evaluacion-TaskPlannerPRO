@@ -1,5 +1,5 @@
-import { loadTasks, handleTaskSubmit } from "./controllers/taskController.js";
-import { loadEvents, handleEventSubmit } from "./controllers/eventController.js";
+import { loadTasks, handleTaskSubmit, filterTasks, deleteTask, editTask, updateStatus } from "./controllers/taskController.js";
+import { loadEvents, handleEventSubmit, editEvent, deleteEvent } from "./controllers/eventController.js";
 import { getNews } from "./services/newsService.js";
 import { handleError } from "./middlewares/errorHandler.js";
 
@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Cargar datos iniciales
         loadTasks();
+        filterTasks();
+        deleteTask();
+        editTask();
         loadEvents();
         getNews();
         loadPhotos(); // Cargar las fotos existentes al iniciar
@@ -24,17 +27,39 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             console.error("Formulario de fotos no encontrado");
         }
+
+        // Agregar event listeners para los botones de eliminar foto
+        const photosContainer = document.getElementById("photo-gallery");
+        if (photosContainer) {
+            photosContainer.addEventListener("click", function(event) {
+                if (event.target && event.target.classList.contains("delete-photo")) {
+                    const filename = event.target.closest(".photo-item").querySelector("img").getAttribute("src").split("/").pop();
+                    deletePhoto(filename);
+                }
+            });
+        } else {
+            console.error("No se encontró el contenedor de fotos.");
+        }
+
     } catch (err) {
         handleError(err, "DOMContentLoaded");
     }
 });
+
+// Exponer funciones al ámbito global para el uso en HTML (onclick, onchange)
+window.editTask = editTask;
+window.deleteTask = deleteTask;
+window.filterTasks = filterTasks;
+window.updateStatus = updateStatus;
+window.editEvent = editEvent;
+window.deleteEvent = deleteEvent;
 
 // Función para cargar fotos desde el backend
 function loadPhotos() {
     fetch("/api/photos")
         .then(response => response.json())
         .then(data => {
-            const photosContainer = document.getElementById("photo-gallery");  // Cambiado de 'photos-container' a 'photo-gallery'
+            const photosContainer = document.getElementById("photo-gallery");
             if (photosContainer) {
                 photosContainer.innerHTML = ""; // Limpiar contenedor
 
@@ -45,13 +70,6 @@ function loadPhotos() {
                         <img src="/uploads/${filename}" alt="Foto" class="photo-thumbnail" />
                         <button class="delete-photo">Eliminar</button>
                     `;
-                    
-                    // Asociar el event listener al botón de eliminar
-                    const deleteButton = photoItem.querySelector(".delete-photo");
-                    deleteButton.addEventListener("click", function() {
-                        deletePhoto(filename); // Llamar a la función deletePhoto con el nombre del archivo
-                    });
-
                     photosContainer.appendChild(photoItem);
                 });
             } else {
@@ -63,11 +81,10 @@ function loadPhotos() {
 
 // Función para manejar el formulario de subida de fotos
 function handlePhotoSubmit(event) {
-    event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
+    event.preventDefault();
 
-    const photoInput = document.getElementById("photo-upload");  // Cambiado de 'photo-input' a 'photo-upload'
+    const photoInput = document.getElementById("photo-upload");
 
-    // Verificar si el input de foto existe y si se ha seleccionado un archivo
     if (photoInput && photoInput.files.length > 0) {
         const formData = new FormData();
         formData.append("photo", photoInput.files[0]);
@@ -79,7 +96,7 @@ function handlePhotoSubmit(event) {
         .then(response => response.json())
         .then(data => {
             if (data.file) {
-                loadPhotos();  // Recargar fotos
+                loadPhotos();
             } else {
                 alert("Error al subir la foto.");
             }
@@ -98,7 +115,7 @@ function deletePhoto(filename) {
     .then(response => response.json())
     .then(data => {
         if (data.message === "Foto eliminada.") {
-            loadPhotos(); // Recargar fotos
+            loadPhotos();
         } else {
             alert("Error al eliminar la foto.");
         }
