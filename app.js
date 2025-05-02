@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editTask();
         loadEvents();
         getNews();
-        loadPhotos(); // Cargar las fotos existentes al iniciar
+        loadPhotos(); 
 
         // Asignar eventos
         document.getElementById("task-form").addEventListener("submit", handleTaskSubmit);
@@ -61,7 +61,7 @@ function loadPhotos() {
         .then(data => {
             const photosContainer = document.getElementById("photo-gallery");
             if (photosContainer) {
-                photosContainer.innerHTML = ""; // Limpiar contenedor
+                photosContainer.innerHTML = ""; 
 
                 data.forEach(filename => {
                     const photoItem = document.createElement("div");

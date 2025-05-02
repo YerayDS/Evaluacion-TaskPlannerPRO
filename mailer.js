@@ -15,7 +15,7 @@ export function sendWelcomeEmail(email, name) {
     from: '"TaskPlanner" <' + process.env.EMAIL_USER + '>',
     to: email,
     subject: '¡Bienvenido a TaskPlanner!',
-    html: `<h3>Hola ${name},</h3><p>Gracias por registrarte en <b>TaskPlanner</b>. ¡Nos alegra tenerte con nosotros!</p>`
+    html: `<h3>Hola,</h3><p>Gracias por registrarte en <b>TaskPlanner</b>. ¡Nos alegra tenerte con nosotros!</p>`
   };
 
   return transporter.sendMail(mailOptions);

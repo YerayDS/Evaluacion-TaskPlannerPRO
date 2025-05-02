@@ -109,32 +109,28 @@ export function editEvent(id) {
             document.getElementById("event-date").value = event.eventDate;
             document.getElementById("event-time").value = event.eventTime;
 
-            // Cambiar el texto del botón de "Add Event" a "Update Event"
             const eventForm = document.getElementById("event-form");
             const submitButton = eventForm.querySelector("button");
             submitButton.textContent = "Update Event";
 
-            // Cambiar el comportamiento del formulario para actualizar el evento
             eventForm.onsubmit = function(e) {
                 e.preventDefault();
                 try {
-                    // Actualizar los datos del evento
                     event.title = document.getElementById("event-title").value.trim();
                     event.description = document.getElementById("event-desc").value.trim();
                     event.eventDate = document.getElementById("event-date").value;
                     event.eventTime = document.getElementById("event-time").value;
-                    event.eventDateTime = new Date(`${event.eventDate}T${event.eventTime}`); // Actualizar la fecha y hora
+                    event.eventDateTime = new Date(`${event.eventDate}T${event.eventTime}`); 
 
                     saveEvents();
                     renderEvents();
                     eventForm.reset();
-                    submitButton.textContent = "Add Event"; // Restablecer el texto del botón
+                    submitButton.textContent = "Add Event"; 
                 } catch (err) {
                     handleError(err, "editEvent: update");
                 }
             };
 
-            // Eliminar el evento original antes de editarlo
             deleteEvent(id);
         }
     } catch (err) {

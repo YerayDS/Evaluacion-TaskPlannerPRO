@@ -8,7 +8,6 @@ export const authenticateToken = (req, res, next) => {
     }
 
     try {
-        // Verificar el token
         const decoded = jwt.verify(token, 'secret_key');
         req.user = decoded; 
         next();
