@@ -1,54 +1,82 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';  
-import { sendWelcomeEmail } from '../mailer.js';  
+import User from '../models/userModel.js';
+import { sendWelcomeEmail } from '../mailer.js';
 
-// Función de registro
 export const registerUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role = 'user' } = req.body;
 
-        const existingUser = User.findOne(email);  
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'El usuario ya existe' });
         }
 
+        console.log("Datos recibidos en registro:", req.body);
+        console.log("Contraseña recibida:", password);
+
         const hashedPassword = await bcrypt.hash(password, 10);
+        console.log("Hash generado para la contraseña:", hashedPassword);
 
-        const newUser = { email, password: hashedPassword };
-        User.create(newUser); 
+        const newUser = await User.create({
+            email,
+            password, 
+            role
+          });
 
-        await sendWelcomeEmail(email); 
+        await sendWelcomeEmail(email);
 
-        const token = jwt.sign({ email }, 'secret_key', { expiresIn: '1h' });
+        const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, 'secret_key', {
+            expiresIn: '1h'
+        });
 
-        res.status(201).json({ message: 'Usuario creado y correo de bienvenida enviado', token });
-
+        res.status(201).json({
+            message: 'Usuario creado y correo enviado',
+            token
+        });
     } catch (error) {
         console.error("Error en el registro:", error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
 
+
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
+    // Elimina espacios antes y después de la contraseña proporcionada
+    const passwordProvided = password.trim();
+
+    console.log("Intentando login con:", email, passwordProvided);
+
     try {
-        const user = User.findOne(email);  
+        const user = await User.findOne({ email });
         if (!user) {
+            console.log("Usuario no encontrado");
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("Usuario encontrado:", user);
+
+        // Comparar la contraseña proporcionada con el hash almacenado en la base de datos
+        const isMatch = await bcrypt.compare(passwordProvided, user.password);
+        console.log("¿La contraseña coincide?:", isMatch);
+        console.log("Contraseña proporcionada:", passwordProvided);
+        console.log("Contraseña almacenada en DB:", user.password);
+
         if (!isMatch) {
             return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
 
-        const token = jwt.sign({ email }, 'secret_key', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, 'secret_key', {
+            expiresIn: '1h'
+        });
 
         return res.status(200).json({ message: 'Login exitoso', token });
     } catch (error) {
-        console.error('Error al hacer login:', error);  
+        console.error('Error al hacer login:', error);
         return res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
+

@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = document.getElementById("login-email").value;
-            const password = document.getElementById("login-password").value;
+            const password = document.getElementById("login-password").value.trim();
 
             try {
                 const res = await fetch("/api/auth/login", {

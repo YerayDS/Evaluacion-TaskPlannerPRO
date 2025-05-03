@@ -1,5 +1,15 @@
-export let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+import mongoose from "mongoose";
 
-export function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+const taskSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: String,
+    date: { type: Date, required: true }, 
+    status: {
+      type: String,
+      enum: ["pending", "inprogress", "completed"],
+      default: "pending"
+    }
+  });
+  
+
+export default mongoose.model("Task", taskSchema);

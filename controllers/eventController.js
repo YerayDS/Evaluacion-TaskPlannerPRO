@@ -1,139 +1,163 @@
-import { events, saveEvents } from "../models/eventModel.js";
-import { getWeatherForEvent } from "../services/weatherService.js";
-import { handleError } from "../middlewares/errorHandler.js";
+let editingEventId = null; 
 
-// Función para añadir un nuevo evento
-export function handleEventSubmit(event) {
-    event.preventDefault();
+export async function handleEventSubmit(event) {
+  event.preventDefault();
 
-    try {
-        const title = document.getElementById("event-title").value.trim();
-        const description = document.getElementById("event-desc").value.trim();
-        const eventDate = document.getElementById("event-date").value;
-        const eventTime = document.getElementById("event-time").value;
+  try {
+    const title = document.getElementById("event-title").value.trim();
+    const description = document.getElementById("event-desc").value.trim();
+    const eventDate = document.getElementById("event-date").value;
+    const eventTime = document.getElementById("event-time").value;
 
-        if (!title || !eventDate || !eventTime) {
-            alert("Título, fecha y hora son requeridos");
-            return;
-        }
-
-        const eventDateTime = new Date(`${eventDate}T${eventTime}`);
-
-        const newEvent = {
-            id: Date.now(),
-            title,
-            description,
-            eventDateTime,
-            eventDate,
-            eventTime
-        };
-
-        events.push(newEvent);
-        saveEvents();
-        renderEvents();
-
-        document.getElementById("event-form").reset();
-    } catch (err) {
-        handleError(err, "handleEventSubmit");
+    if (!title || !eventDate || !eventTime) {
+      alert("Título, fecha y hora son requeridos");
+      return;
     }
+
+    const eventDateTime = new Date(`${eventDate}T${eventTime}`);
+    const eventData = {
+      title,
+      description,
+      eventDate,
+      eventTime,
+      eventDateTime,
+    };
+
+    let response;
+
+    if (editingEventId) {
+      // Modo edición
+      response = await fetch(`/api/events/${editingEventId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventData),
+      });
+      editingEventId = null; // Resetear edición
+    } else {
+      // Nuevo evento
+      response = await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventData),
+      });
+    }
+
+    if (response.ok) {
+      loadEvents();
+      document.getElementById("event-form").reset();
+      document.querySelector("#event-form button").textContent = "Add Event";
+    } else {
+      console.error("Error al guardar el evento");
+    }
+  } catch (err) {
+    console.error("Error en handleEventSubmit:", err);
+  }
 }
 
-// Función para cargar los eventos
-export function loadEvents() {
-    try {
-        renderEvents();
-    } catch (err) {
-        handleError(err, "loadEvents");
-    }
+export async function loadEvents() {
+  try {
+    const response = await fetch("/api/events");
+    const events = await response.json();
+    renderEvents(events);
+  } catch (err) {
+    console.error("Error en loadEvents:", err);
+  }
 }
 
-// Función para renderizar eventos
-function renderEvents() {
-    try {
-        const eventList = document.getElementById("event-list");
-        eventList.innerHTML = "";
+async function getWeatherForEvent(event) {
+  try {
+    const lat = 40.4168;
+    const lon = -3.7038;
+    const formattedDate = event.eventDate;
 
-        events.sort((a, b) => a.eventDateTime - b.eventDateTime);
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe/Madrid`;
 
-        events.forEach(event => {
-            const eventItem = document.createElement("div");
-            eventItem.classList.add("event-item");
+    const response = await fetch(apiUrl);
+    const data = await response.json();
 
-            eventItem.innerHTML = `
-                <h3>${event.title}</h3>
-                <p>${event.description}</p>
-                <p><strong>Event Time:</strong> ${event.eventDate} ${event.eventTime}</p>
-                <p id="weather-info-${event.id}">Cargando clima...</p>
-                <div class="button-container">
-                    <button onclick="editEvent(${event.id})">Edit</button>
-                    <button onclick="deleteEvent(${event.id})">Delete</button>
-                </div>
-            `;
+    if (data?.daily?.time) {
+      const index = data.daily.time.indexOf(formattedDate);
+      if (index !== -1) {
+        const maxTemp = data.daily.temperature_2m_max[index];
+        const minTemp = data.daily.temperature_2m_min[index];
+        const precipitation = data.daily.precipitation_sum[index];
 
-            // Obtener el clima para el evento
-            getWeatherForEvent(event)
-                .then(weatherText => {
-                    const weatherInfo = document.getElementById(`weather-info-${event.id}`);
-                    if (weatherInfo) weatherInfo.textContent = weatherText;
-                })
-                .catch(err => {
-                    handleError(err, "getWeatherForEvent");
-                });
-
-            eventList.appendChild(eventItem);
-        });
-    } catch (err) {
-        handleError(err, "renderEvents");
+        return `Max: ${maxTemp}°C | Min: ${minTemp}°C | Precip: ${precipitation}mm`;
+      } else {
+        return "Clima no disponible para esta fecha.";
+      }
+    } else {
+      return "Error obteniendo clima.";
     }
+  } catch (err) {
+    console.error("Error obteniendo clima:", err);
+    return "Error en la API del clima.";
+  }
 }
 
-// Función para eliminar un evento
-export function deleteEvent(id) {
+async function renderEvents(events = []) {
+  const eventList = document.getElementById("event-list");
+  eventList.innerHTML = "";
+
+  for (const event of events) {
+    const eventItem = document.createElement("div");
+    eventItem.classList.add("event-item");
+
+    eventItem.innerHTML = `
+      <h3>${event.title}</h3>
+      <p>${event.description}</p>
+      <p><strong>Event Time:</strong> ${event.eventDate} ${event.eventTime}</p>
+      <p id="weather-info-${event._id}">Cargando clima...</p>
+      <div class="button-container">
+        <button onclick="editEvent('${event._id}')">Edit</button>
+        <button onclick="deleteEvent('${event._id}')">Delete</button>
+      </div>
+    `;
+
+    // Obtener clima
     try {
-        events.splice(0, events.length, ...events.filter(event => event.id !== id));
-        saveEvents();
-        renderEvents();
+      const weatherText = await getWeatherForEvent(event);
+      const weatherInfo = document.getElementById(`weather-info-${event._id}`);
+      if (weatherInfo) {
+        weatherInfo.textContent = weatherText;
+      }
     } catch (err) {
-        handleError(err, "deleteEvent");
+      console.error("Error al obtener el clima:", err);
     }
+
+    eventList.appendChild(eventItem);
+  }
 }
 
-// Función para editar un evento
-export function editEvent(id) {
-    try {
-        const event = events.find(event => event.id === id);
-        if (event) {
-            // Rellenar el formulario con los datos del evento
-            document.getElementById("event-title").value = event.title;
-            document.getElementById("event-desc").value = event.description;
-            document.getElementById("event-date").value = event.eventDate;
-            document.getElementById("event-time").value = event.eventTime;
+export async function deleteEvent(id) {
+  try {
+    const response = await fetch(`/api/events/${id}`, { method: "DELETE" });
 
-            const eventForm = document.getElementById("event-form");
-            const submitButton = eventForm.querySelector("button");
-            submitButton.textContent = "Update Event";
-
-            eventForm.onsubmit = function(e) {
-                e.preventDefault();
-                try {
-                    event.title = document.getElementById("event-title").value.trim();
-                    event.description = document.getElementById("event-desc").value.trim();
-                    event.eventDate = document.getElementById("event-date").value;
-                    event.eventTime = document.getElementById("event-time").value;
-                    event.eventDateTime = new Date(`${event.eventDate}T${event.eventTime}`); 
-
-                    saveEvents();
-                    renderEvents();
-                    eventForm.reset();
-                    submitButton.textContent = "Add Event"; 
-                } catch (err) {
-                    handleError(err, "editEvent: update");
-                }
-            };
-
-            deleteEvent(id);
-        }
-    } catch (err) {
-        handleError(err, "editEvent");
+    if (response.ok) {
+      loadEvents();
+    } else {
+      console.error("Error al eliminar el evento");
     }
+  } catch (err) {
+    console.error("Error en deleteEvent:", err);
+  }
+}
+
+export async function editEvent(id) {
+  try {
+    const response = await fetch(`/api/events/${id}`);
+    const event = await response.json();
+
+    if (event) {
+      document.getElementById("event-title").value = event.title;
+      document.getElementById("event-desc").value = event.description;
+      document.getElementById("event-date").value = event.eventDate;
+      document.getElementById("event-time").value = event.eventTime;
+
+      editingEventId = id; // Activar modo edición
+      document.querySelector("#event-form button").textContent = "Update Event";
+    }
+  } catch (err) {
+    console.error("Error en editEvent:", err);
+  }
 }

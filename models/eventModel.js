@@ -1,5 +1,11 @@
-export let events = JSON.parse(localStorage.getItem("events")) || [];
+import mongoose from "mongoose";
 
-export function saveEvents() {
-    localStorage.setItem("events", JSON.stringify(events));
-}
+const eventSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: { type: String },
+    eventDateTime: { type: Date, required: true }, 
+    eventDate: { type: String, required: true },
+    eventTime: { type: String, required: true }
+  });
+  
+  export default mongoose.model("Event", eventSchema);

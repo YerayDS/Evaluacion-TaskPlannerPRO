@@ -8,13 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("TaskPlanner initialized");
 
         // Cargar datos iniciales
-        loadTasks();
-        filterTasks();
-        deleteTask();
-        editTask();
-        loadEvents();
-        getNews();
-        loadPhotos(); 
+        loadTasks(); // Carga inicial de las tareas
+        loadEvents(); // Carga eventos
+        getNews(); // Cargar noticias
+        loadPhotos(); // Cargar fotos
 
         // Asignar eventos
         document.getElementById("task-form").addEventListener("submit", handleTaskSubmit);
@@ -49,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Exponer funciones al ámbito global para el uso en HTML (onclick, onchange)
 window.editTask = editTask;
 window.deleteTask = deleteTask;
-window.filterTasks = filterTasks;
+window.filterTasks = filterTasks;  // Solo se expone para ser usado en eventos específicos
 window.updateStatus = updateStatus;
 window.editEvent = editEvent;
 window.deleteEvent = deleteEvent;

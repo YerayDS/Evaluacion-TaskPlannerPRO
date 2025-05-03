@@ -1,11 +1,20 @@
 import express from 'express';
 import path from 'path';
 import multer from 'multer';
+import cors from 'cors';
 import { uploadPhoto, getPhotos, deletePhoto } from './controllers/photoController.js';
 import { fileURLToPath } from 'url';
 import { registerUser, loginUser } from './controllers/authController.js'; 
+import connectDB from "./config/db.js";
+import taskRoutes from './routes/taskRoutes.js';  
+import eventRoutes from './routes/eventRoutes.js';  
+
+
+
+connectDB();
 
 const app = express();
+app.use(cors());
 const port = 5500;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,6 +38,9 @@ app.use(express.static(path.join(__dirname), { index: false }));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'auth.html')); 
 });
+
+app.use('/api/tasks', taskRoutes); 
+app.use('/api/events', eventRoutes);
 
 app.post('/api/auth/register', registerUser);  
 app.post('/api/auth/login', loginUser); 

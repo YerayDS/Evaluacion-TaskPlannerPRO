@@ -1,16 +1,16 @@
-// userModel.js
-const users = []; // Esta será tu "base de datos" temporalmente, en producción usa una base de datos real
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";  // Cambié bcrypt a bcryptjs
 
-// Modelo de usuario (en producción usa una base de datos como MongoDB)
-const User = {
-    // Buscar un usuario por email
-    findOne: (email) => users.find(user => user.email === email),
-    
-    // Crear un nuevo usuario
-    create: (userData) => {
-        users.push(userData);
-        return userData;
-    },
-};
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["admin", "user"], default: "user" }
+});
 
-export default User;
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  });
+
+export default mongoose.model("User", userSchema);
