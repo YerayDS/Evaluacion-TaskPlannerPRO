@@ -3,29 +3,63 @@ import { loadEvents, handleEventSubmit, editEvent, deleteEvent } from "./control
 import { getNews } from "./services/newsService.js";
 import { handleError } from "./middlewares/errorHandler.js";
 
+
 document.addEventListener("DOMContentLoaded", () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "/";
+        return;
+    }
+
     try {
-        console.log("TaskPlanner initialized");
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log(payload);  // Verifica que el payload tenga la propiedad `role` correctamente asignada.
+        if (payload.role === 'admin') {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.remove('hidden');
+            });
+        } else {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.add('hidden');
+            });
+        }
+    } catch (err) {
+        console.error("Token inválido:", err);
+        window.location.href = "/";
+    }
 
-        // Cargar datos iniciales
-        loadTasks(); // Carga inicial de las tareas
-        loadEvents(); // Carga eventos
-        getNews(); // Cargar noticias
-        loadPhotos(); // Cargar fotos
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
 
-        // Asignar eventos
-        document.getElementById("task-form").addEventListener("submit", handleTaskSubmit);
-        document.getElementById("event-form").addEventListener("submit", handleEventSubmit);
+            window.location.href = "auth.html";
+        });
+    }
 
-        // Manejar subida de fotos
+    try {
+        loadTasks(); 
+        loadEvents();
+        getNews(); 
+        loadPhotos(); 
+
+        const taskForm = document.getElementById("task-form");
+        if (taskForm) {
+            taskForm.addEventListener("submit", handleTaskSubmit);
+        }
+
+        const eventForm = document.getElementById("event-form");
+        if (eventForm) {
+            eventForm.addEventListener("submit", handleEventSubmit);
+        }
+
         const photoForm = document.getElementById("photo-form");
         if (photoForm) {
             photoForm.addEventListener("submit", handlePhotoSubmit);
-        } else {
-            console.error("Formulario de fotos no encontrado");
         }
 
-        // Agregar event listeners para los botones de eliminar foto
         const photosContainer = document.getElementById("photo-gallery");
         if (photosContainer) {
             photosContainer.addEventListener("click", function(event) {
@@ -34,24 +68,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     deletePhoto(filename);
                 }
             });
-        } else {
-            console.error("No se encontró el contenedor de fotos.");
         }
-
     } catch (err) {
         handleError(err, "DOMContentLoaded");
     }
 });
 
-// Exponer funciones al ámbito global para el uso en HTML (onclick, onchange)
 window.editTask = editTask;
 window.deleteTask = deleteTask;
-window.filterTasks = filterTasks;  // Solo se expone para ser usado en eventos específicos
+window.filterTasks = filterTasks;  
 window.updateStatus = updateStatus;
 window.editEvent = editEvent;
 window.deleteEvent = deleteEvent;
 
-// Función para cargar fotos desde el backend
 function loadPhotos() {
     fetch("/api/photos")
         .then(response => response.json())
@@ -59,33 +88,34 @@ function loadPhotos() {
             const photosContainer = document.getElementById("photo-gallery");
             if (photosContainer) {
                 photosContainer.innerHTML = ""; 
-
                 data.forEach(filename => {
                     const photoItem = document.createElement("div");
                     photoItem.classList.add("photo-item");
+
+                    // Asegúrate de que el rol se lee correctamente
+                    console.log('Rol en localStorage:', localStorage.getItem('role'));
+
+                    const deleteButton = localStorage.getItem("role") === "admin" ? `
+                        <button class="delete-photo">Delete</button>
+                    ` : '';
+
                     photoItem.innerHTML = `
                         <img src="/uploads/${filename}" alt="Foto" class="photo-thumbnail" />
-                        <button class="delete-photo">Eliminar</button>
+                        ${deleteButton}
                     `;
                     photosContainer.appendChild(photoItem);
                 });
-            } else {
-                console.error("No se encontró el contenedor de fotos.");
             }
         })
         .catch(err => handleError(err, "loadPhotos"));
 }
 
-// Función para manejar el formulario de subida de fotos
 function handlePhotoSubmit(event) {
     event.preventDefault();
-
     const photoInput = document.getElementById("photo-upload");
-
     if (photoInput && photoInput.files.length > 0) {
         const formData = new FormData();
         formData.append("photo", photoInput.files[0]);
-
         fetch("/api/photos", {
             method: "POST",
             body: formData
@@ -104,10 +134,13 @@ function handlePhotoSubmit(event) {
     }
 }
 
-// Función para eliminar una foto
 function deletePhoto(filename) {
+    const token = localStorage.getItem("token");  
     fetch(`/api/photos/${filename}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
     })
     .then(response => response.json())
     .then(data => {

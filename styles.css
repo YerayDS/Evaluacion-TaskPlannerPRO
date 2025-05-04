@@ -371,6 +371,26 @@ button:hover {
     background-color: #ff4d4d;
 }
 
+.hidden {
+    display: none !important;
+  }
+
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #ff4c4c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+  
+.logout-btn:hover {
+    background-color: #ff2a2a;
+}
+
 @media (max-width: 1024px) {
     .task-columns {
         flex-direction: column;

@@ -9,13 +9,15 @@
 <body>
   <header>
     <h1>Task & Event Planner</h1>
+    <button class="logout-btn" id="logout-btn">Logout</button>
   </header>
   <main>
     
     <!-- Sección de Tareas -->
     <section id="task-section" class="section tasks">
-      <h2>Create a New Task</h2>
-      <form id="task-form">
+      <h2>Tasks</h2>
+      <form id="task-form" class="admin-only hidden">
+        <h2>Create a New Task</h2>
         <input type="text" id="task-title" placeholder="Task Name" required />
         <textarea id="task-desc" placeholder="Task Description"></textarea>
         <input type="date" id="task-date" required />
@@ -55,8 +57,9 @@
 
     <!-- Sección de Eventos -->
     <section id="event-section" class="section events">
-      <h2>Create a New Event</h2>
-      <form id="event-form">
+      <h2>Events</h2>
+      <form id="event-form" class="admin-only hidden">
+        <h2>Create a New Event</h2>
         <input type="text" id="event-title" placeholder="Event Title" required />
         <textarea id="event-desc" placeholder="Event Description"></textarea>
         <input type="date" id="event-date" required />
@@ -67,21 +70,22 @@
       <div id="event-list" class="event-list"></div>
     </section>
 
-    <!-- Sección de Noticias -->
-    <section id="news-section" class="section news">
-      <h2>Latest News</h2>
-      <div id="news-container"></div>
-    </section>
-
     <!-- Sección de Fotos -->
     <section id="photo-section" class="section photos">
-      <h2>Upload a Photo</h2>
-      <form id="photo-form" enctype="multipart/form-data">
+      <h2>Gallery</h2>
+      <form id="photo-form" enctype="multipart/form-data" class="admin-only hidden">
+        <h2>Upload a Photo</h2>
         <input type="file" id="photo-upload" name="photo" accept="image/*" required />
         <button type="submit">Upload Photo</button>
       </form>
     
       <div id="photo-gallery" class="photo-gallery"></div> <!-- Galería para mostrar las fotos subidas -->
+    </section>
+
+    <!-- Sección de Noticias -->
+    <section id="news-section" class="section news">
+      <h2>Latest News</h2>
+      <div id="news-container"></div>
     </section>
 
   </main>

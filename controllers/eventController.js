@@ -1,4 +1,4 @@
-let editingEventId = null; 
+let editingEventId = null;
 
 export async function handleEventSubmit(event) {
   event.preventDefault();
@@ -8,6 +8,7 @@ export async function handleEventSubmit(event) {
     const description = document.getElementById("event-desc").value.trim();
     const eventDate = document.getElementById("event-date").value;
     const eventTime = document.getElementById("event-time").value;
+    const token = localStorage.getItem("token");
 
     if (!title || !eventDate || !eventTime) {
       alert("Título, fecha y hora son requeridos");
@@ -26,18 +27,22 @@ export async function handleEventSubmit(event) {
     let response;
 
     if (editingEventId) {
-      // Modo edición
       response = await fetch(`/api/events/${editingEventId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(eventData),
       });
-      editingEventId = null; // Resetear edición
+      editingEventId = null;
     } else {
-      // Nuevo evento
       response = await fetch("/api/events", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(eventData),
       });
     }
@@ -47,7 +52,7 @@ export async function handleEventSubmit(event) {
       document.getElementById("event-form").reset();
       document.querySelector("#event-form button").textContent = "Add Event";
     } else {
-      console.error("Error al guardar el evento");
+      alert("No autorizado para guardar el evento.");
     }
   } catch (err) {
     console.error("Error en handleEventSubmit:", err);
@@ -81,7 +86,6 @@ async function getWeatherForEvent(event) {
         const maxTemp = data.daily.temperature_2m_max[index];
         const minTemp = data.daily.temperature_2m_min[index];
         const precipitation = data.daily.precipitation_sum[index];
-
         return `Max: ${maxTemp}°C | Min: ${minTemp}°C | Precip: ${precipitation}mm`;
       } else {
         return "Clima no disponible para esta fecha.";
@@ -97,6 +101,7 @@ async function getWeatherForEvent(event) {
 
 async function renderEvents(events = []) {
   const eventList = document.getElementById("event-list");
+  const userRole = localStorage.getItem("role");
   eventList.innerHTML = "";
 
   for (const event of events) {
@@ -108,13 +113,15 @@ async function renderEvents(events = []) {
       <p>${event.description}</p>
       <p><strong>Event Time:</strong> ${event.eventDate} ${event.eventTime}</p>
       <p id="weather-info-${event._id}">Cargando clima...</p>
+      ${userRole === "admin" ? `
       <div class="button-container">
         <button onclick="editEvent('${event._id}')">Edit</button>
         <button onclick="deleteEvent('${event._id}')">Delete</button>
-      </div>
+      </div>` : ""}
     `;
 
-    // Obtener clima
+    eventList.appendChild(eventItem);
+
     try {
       const weatherText = await getWeatherForEvent(event);
       const weatherInfo = document.getElementById(`weather-info-${event._id}`);
@@ -124,19 +131,23 @@ async function renderEvents(events = []) {
     } catch (err) {
       console.error("Error al obtener el clima:", err);
     }
-
-    eventList.appendChild(eventItem);
   }
 }
 
 export async function deleteEvent(id) {
   try {
-    const response = await fetch(`/api/events/${id}`, { method: "DELETE" });
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/events/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
 
     if (response.ok) {
       loadEvents();
     } else {
-      console.error("Error al eliminar el evento");
+      alert("No autorizado para eliminar.");
     }
   } catch (err) {
     console.error("Error en deleteEvent:", err);
@@ -154,7 +165,7 @@ export async function editEvent(id) {
       document.getElementById("event-date").value = event.eventDate;
       document.getElementById("event-time").value = event.eventTime;
 
-      editingEventId = id; // Activar modo edición
+      editingEventId = id;
       document.querySelector("#event-form button").textContent = "Update Event";
     }
   } catch (err) {

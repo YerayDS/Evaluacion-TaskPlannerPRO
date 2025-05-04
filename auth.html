@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Autenticación - TaskPlanner</title>
+  <title>Authentication - TaskPlanner</title>
   <link rel="stylesheet" href="auth.css" />
 </head>
 <body>
   <div class="auth-container">
     <div class="form-toggle">
-      <button id="show-login">Iniciar Sesión</button>
-      <button id="show-register">Registrarse</button>
+      <button id="show-login">Log In</button>
+      <button id="show-register">Register</button>
     </div>
 
     <form id="login-form" class="auth-form">
-      <h2>Iniciar Sesión</h2>
-      <input type="email" id="login-email" placeholder="Correo electrónico" required />
-      <input type="password" id="login-password" placeholder="Contraseña" required />
-      <button type="submit">Entrar</button>
+      <h2>Log In</h2>
+      <input type="email" id="login-email" placeholder="Email Address" required />
+      <input type="password" id="login-password" placeholder="Password" required />
+      <button type="submit">Log In</button>
     </form>
 
     <form id="register-form" class="auth-form hidden">
-      <h2>Registro</h2>
-      <input type="email" id="register-email" placeholder="Correo electrónico" required />
-      <input type="password" id="register-password" placeholder="Contraseña" required />
-      <button type="submit">Registrarse</button>
+      <h2>Register</h2>
+      <input type="email" id="register-email" placeholder="Email Address" required />
+      <input type="password" id="register-password" placeholder="Password" required />
+      <select id="register-role">
+        <option value="user">Regular User</option>
+        <option value="admin">Administrator</option>
+      </select>
+      <button type="submit">Sign Up</button>
     </form>
   </div>
 

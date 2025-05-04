@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import jwt from "jsonwebtoken";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -19,11 +20,26 @@ export const getPhotos = (req, res) => {
 };
 
 export const deletePhoto = (req, res) => {
-    const filePath = path.join(uploadsDir, req.params.filename);
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        res.json({ message: "Foto eliminada." });
-    } else {
-        res.status(404).json({ message: "Archivo no encontrado." });
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: "Token no proporcionado." });
+    }
+
+    const token = authHeader.split(" ")[1];
+    try {
+        const decoded = jwt.verify(token, "secret_key");
+        if (decoded.role !== "admin") {
+            return res.status(403).json({ message: "Acceso denegado. Solo administradores pueden eliminar fotos." });
+        }
+
+        const filePath = path.join(uploadsDir, req.params.filename);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            res.json({ message: "Foto eliminada." });
+        } else {
+            res.status(404).json({ message: "Archivo no encontrado." });
+        }
+    } catch (err) {
+        res.status(401).json({ message: "Token inválido." });
     }
 };

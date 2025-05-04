@@ -1,9 +1,9 @@
 import express from "express";
 import Event from "../models/eventModel.js";
+import { authenticateToken, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// Obtener todos los eventos
 router.get("/", async (req, res) => {
   try {
     const events = await Event.find().sort({ eventDateTime: 1 });
@@ -14,7 +14,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Obtener un evento específico
 router.get("/:id", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -26,8 +25,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Crear nuevo evento
-router.post("/", async (req, res) => {
+router.post("/", authenticateToken, isAdmin, async (req, res) => {
   try {
     const { title, description, eventDate, eventTime, eventDateTime } = req.body;
 
@@ -47,8 +45,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Actualizar un evento
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateToken, isAdmin, async (req, res) => {
   try {
     const { title, description, eventDate, eventTime, eventDateTime } = req.body;
 
@@ -67,8 +64,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Eliminar un evento
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateToken, isAdmin, async (req, res) => {
   try {
     const deletedEvent = await Event.findByIdAndDelete(req.params.id);
     if (!deletedEvent) return res.status(404).json({ message: "Evento no encontrado" });
