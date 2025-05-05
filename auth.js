@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
-    const role = document.getElementById("register-role").value;
 
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
@@ -13,22 +12,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch("/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password, role })
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await res.json();
 
                 if (res.ok && data.token) {
-                    // Guardar el token en localStorage
                     localStorage.setItem("token", data.token);
-                    
-                    // Decodificar el token y almacenar el rol en localStorage
                     const payload = JSON.parse(atob(data.token.split('.')[1]));
-                    localStorage.setItem("role", payload.role);  // Guardar el rol en localStorage
-                    
-                    console.log("Token decodificado: ", payload);  // Solo para debugging
-
-                    window.location.href = "index.html";  // Redirigir al index
+                    localStorage.setItem("role", payload.role);
+                    console.log("Token decodificado: ", payload);
+                    window.location.href = "index.html";
                 } else {
                     alert(data.message || "Login fallido");
                 }
@@ -43,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const email = document.getElementById("register-email").value;
             const password = document.getElementById("register-password").value;
+            const role = document.getElementById("register-role").value; // ✅ MOVIDO AQUÍ
 
             try {
                 const res = await fetch("/api/auth/register", {

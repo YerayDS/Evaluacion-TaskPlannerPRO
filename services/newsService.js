@@ -4,7 +4,7 @@ const apiKey = "5f4ec6a1f0b745eca5157c7977a45f1a";
 
 export async function getNews() {
     try {
-        const url = `https://newsapi.org/v2/top-headlines?language=en&pageSize=6&apiKey=${apiKey}`;
+        const url = `https://newsapi.org/v2/top-headlines?language=en&pageSize=11&apiKey=${apiKey}`;
         const response = await fetch(url);
         const data = await response.json();
 

@@ -45,6 +45,25 @@ document.addEventListener("DOMContentLoaded", () => {
         getNews(); 
         loadPhotos(); 
 
+        const navButtons = document.querySelectorAll(".section-nav button");
+
+        navButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const sectionId = button.dataset.section;
+                showSection(sectionId);
+
+                navButtons.forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+            });
+        });
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll("main > section");
+            sections.forEach(section => section.classList.add("hidden"));
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.remove("hidden");
+        }
+
         const taskForm = document.getElementById("task-form");
         if (taskForm) {
             taskForm.addEventListener("submit", handleTaskSubmit);
