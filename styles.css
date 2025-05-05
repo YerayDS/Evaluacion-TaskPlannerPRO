@@ -288,6 +288,7 @@ button:hover {
     letter-spacing: 1px;
 }
 
+
 #task-filter-container {
     margin: 2rem auto;
     max-width: 500px;
@@ -405,6 +406,17 @@ button:hover {
 .hidden {
     display: none !important;
   }
+
+.task-columns {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+  
+.task-columns.centered-column {
+    justify-content: center;
+}
+
 
 .logout-btn {
     position: absolute;
