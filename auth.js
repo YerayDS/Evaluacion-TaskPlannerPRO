@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const email = document.getElementById("register-email").value;
             const password = document.getElementById("register-password").value;
-            const role = document.getElementById("register-role").value; // ✅ MOVIDO AQUÍ
+            const role = document.getElementById("register-role").value; 
 
             try {
                 const res = await fetch("/api/auth/register", {

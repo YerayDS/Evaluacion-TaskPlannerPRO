@@ -69,14 +69,12 @@ async function renderTasks(tasks = []) {
   const inProgressList = document.getElementById("inprogress-tasks");
   const completedList = document.getElementById("completed-tasks");
 
-  // Limpiar las listas
   pendingList.innerHTML = "";
   inProgressList.innerHTML = "";
   completedList.innerHTML = "";
 
   const userRole = localStorage.getItem("role");
 
-  // Añadir las tareas correspondientes a cada lista
   tasks.forEach(task => {
     const taskItem = document.createElement("div");
     taskItem.classList.add("task-item");
@@ -90,7 +88,6 @@ async function renderTasks(tasks = []) {
         <button onclick="deleteTask('${task._id}')">Delete</button>` : ""}
     `;
 
-    // Asignar las tareas a sus respectivas listas
     if (task.status === "pending") {
       pendingList.appendChild(taskItem);
     } else if (task.status === "inprogress") {
@@ -100,10 +97,8 @@ async function renderTasks(tasks = []) {
     }
   });
 
-  // Obtener el valor del filtro seleccionado
   const filterValue = document.getElementById("task-filter").value;
 
-  // Mostrar u ocultar columnas según el filtro
   if (filterValue === "all") {
     pendingColumn.classList.remove("hidden");
     inProgressColumn.classList.remove("hidden");
@@ -114,12 +109,10 @@ async function renderTasks(tasks = []) {
     completedColumn.classList.toggle("hidden", filterValue !== "completed");
   }
 
-  // Ocultar columnas vacías
   if (pendingList.children.length === 0) pendingColumn.classList.add("hidden");
   if (inProgressList.children.length === 0) inProgressColumn.classList.add("hidden");
   if (completedList.children.length === 0) completedColumn.classList.add("hidden");
 
-  // Centrar columna si solo hay una visible
   const columnsWrapper = document.getElementById("columns-wrapper");
   const visibleColumns = [pendingColumn, inProgressColumn, completedColumn].filter(
     col => !col.classList.contains("hidden")

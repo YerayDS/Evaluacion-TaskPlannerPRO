@@ -45,7 +45,6 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
-    // Elimina espacios antes y después de la contraseña proporcionada
     const passwordProvided = password.trim();
 
     console.log("Intentando login con:", email, passwordProvided);
@@ -59,7 +58,6 @@ export const loginUser = async (req, res) => {
 
         console.log("Usuario encontrado:", user);
 
-        // Comparar la contraseña proporcionada con el hash almacenado en la base de datos
         const isMatch = await bcrypt.compare(passwordProvided, user.password);
         console.log("¿La contraseña coincide?:", isMatch);
         console.log("Contraseña proporcionada:", passwordProvided);

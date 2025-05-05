@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log(payload);  // Verifica que el payload tenga la propiedad `role` correctamente asignada.
+        console.log(payload);  
         if (payload.role === 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => {
                 el.classList.remove('hidden');
@@ -111,7 +111,6 @@ function loadPhotos() {
                     const photoItem = document.createElement("div");
                     photoItem.classList.add("photo-item");
 
-                    // Asegúrate de que el rol se lee correctamente
                     console.log('Rol en localStorage:', localStorage.getItem('role'));
 
                     const deleteButton = localStorage.getItem("role") === "admin" ? `
