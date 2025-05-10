@@ -9,10 +9,13 @@
 <body>
   <header>
     <h1>Task & Event Planner</h1>
-    <button class="logout-btn" id="logout-btn">Logout</button>
+    <div>
+      <button class="logout-btn" id="logout-btn">Logout</button>
+      <button class="chat-btn" id="open-chat-btn">Chat</button>
+    </div>
   </header>
+
   <main>
-    
     <!-- Sección de Tareas -->
     <section id="task-section" class="section tasks">
       <h2>Tasks</h2>
@@ -32,13 +35,13 @@
       <div id="task-filter-container">
         <label for="task-filter">Filter Tasks:</label>
         <select id="task-filter" onchange="filterTasks()">
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="inprogress">In Progress</option>
-            <option value="completed">Completed</option>
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="inprogress">In Progress</option>
+          <option value="completed">Completed</option>
         </select>
       </div>
-    
+
       <div class="task-columns">
         <div id="pending-column" class="task-column">
           <h2>Pending</h2>
@@ -78,8 +81,7 @@
         <input type="file" id="photo-upload" name="photo" accept="image/*" required />
         <button type="submit">Upload Photo</button>
       </form>
-    
-      <div id="photo-gallery" class="photo-gallery"></div> <!-- Galería para mostrar las fotos subidas -->
+      <div id="photo-gallery" class="photo-gallery"></div>
     </section>
 
     <!-- Sección de Noticias -->
@@ -87,9 +89,21 @@
       <h2>Latest News</h2>
       <div id="news-container"></div>
     </section>
-
   </main>
-  <script type="module" src="./app.js"></script>
 
+  <!-- Chat flotante -->
+  <div id="chat-box">
+    <div id="chat-header">
+      <span>Chat</span>
+      <button id="close-chat-btn">X</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Type a message..." />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
 </body>
 </html>

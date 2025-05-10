@@ -3,7 +3,6 @@ import { loadEvents, handleEventSubmit, editEvent, deleteEvent } from "./control
 import { getNews } from "./services/newsService.js";
 import { handleError } from "./middlewares/errorHandler.js";
 
-
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("token");
 
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log(payload);  // Verifica que el payload tenga la propiedad `role` correctamente asignada.
+        console.log(payload);
         if (payload.role === 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => {
                 el.classList.remove('hidden');
@@ -26,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     } catch (err) {
         console.error("Token inválido:", err);
+        alert("Token inválido o expirado. Por favor, inicia sesión de nuevo.");
         window.location.href = "/";
     }
 
@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
         logoutBtn.addEventListener("click", () => {
             localStorage.removeItem("token");
             localStorage.removeItem("role");
-
             window.location.href = "auth.html";
         });
     }
@@ -91,9 +90,6 @@ function loadPhotos() {
                 data.forEach(filename => {
                     const photoItem = document.createElement("div");
                     photoItem.classList.add("photo-item");
-
-                    // Asegúrate de que el rol se lee correctamente
-                    console.log('Rol en localStorage:', localStorage.getItem('role'));
 
                     const deleteButton = localStorage.getItem("role") === "admin" ? `
                         <button class="delete-photo">Delete</button>
@@ -152,3 +148,63 @@ function deletePhoto(filename) {
     })
     .catch(err => handleError(err, "deletePhoto"));
 }
+
+// === CHAT CON WEBSOCKETS ===
+let socket;
+let chatBox = document.getElementById("chat-box");
+let chatBtn = document.querySelector(".chat-btn");
+let sendButton = document.getElementById("send-btn");
+let chatInput = document.getElementById("chat-input");
+let closeButton = document.getElementById("close-chat-btn");
+let messagesDiv = document.getElementById("chat-messages");
+
+function connectWebSocket() {
+    socket = new WebSocket(`ws://${window.location.host}`);
+
+    socket.addEventListener("open", () => {
+        console.log("WebSocket conectado");
+    });
+
+    socket.addEventListener("message", (event) => {
+        const message = document.createElement("div");
+        message.textContent = event.data;
+        messagesDiv.appendChild(message);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Desplazar al fondo
+    });
+
+    socket.addEventListener("close", () => {
+        console.log("WebSocket desconectado");
+        setTimeout(connectWebSocket, 5000);  // Reintentar la conexión en 5 segundos
+    });
+
+    socket.addEventListener("error", (err) => {
+        console.error("Error en WebSocket:", err);
+    });
+}
+
+chatBtn.addEventListener("click", () => {
+    chatBox.style.display = "flex";
+    chatInput.focus();  // Foco automático en el campo de entrada
+});
+
+closeButton.addEventListener("click", () => {
+    chatBox.style.display = "none";
+});
+
+sendButton.addEventListener("click", () => {
+    const message = chatInput.value.trim();
+    if (message !== "") {
+        socket.send(message);  // Enviar mensaje al servidor
+        chatInput.value = "";  // Limpiar el campo de entrada
+    }
+});
+
+chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        sendButton.click();  // Simula un clic en el botón de enviar
+    }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    connectWebSocket();  // Establece la conexión WebSocket
+});
