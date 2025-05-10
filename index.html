@@ -11,11 +11,17 @@
     <h1>Task & Event Planner</h1>
     <button class="logout-btn" id="logout-btn">Logout</button>
   </header>
+  <div class="section-nav">
+    <button data-section="task-section" class="active">Tasks</button>
+    <button data-section="event-section">Events</button>
+    <button data-section="photo-section">Gallery</button>
+    <button data-section="news-section">News</button>
+  </div>
   <main>
     
     <!-- Sección de Tareas -->
     <section id="task-section" class="section tasks">
-      <h2>Tasks</h2>
+      <h1>Tasks</h1>
       <form id="task-form" class="admin-only hidden">
         <h2>Create a New Task</h2>
         <input type="text" id="task-title" placeholder="Task Name" required />
@@ -39,7 +45,7 @@
         </select>
       </div>
     
-      <div class="task-columns">
+      <div id="columns-wrapper" class="task-columns">
         <div id="pending-column" class="task-column">
           <h2>Pending</h2>
           <div id="pending-tasks"></div>
@@ -56,8 +62,8 @@
     </section>
 
     <!-- Sección de Eventos -->
-    <section id="event-section" class="section events">
-      <h2>Events</h2>
+    <section id="event-section" class="section events hidden">
+      <h1>Events</h1>
       <form id="event-form" class="admin-only hidden">
         <h2>Create a New Event</h2>
         <input type="text" id="event-title" placeholder="Event Title" required />
@@ -71,8 +77,8 @@
     </section>
 
     <!-- Sección de Fotos -->
-    <section id="photo-section" class="section photos">
-      <h2>Gallery</h2>
+    <section id="photo-section" class="section photos hidden">
+      <h1>Gallery</h1>
       <form id="photo-form" enctype="multipart/form-data" class="admin-only hidden">
         <h2>Upload a Photo</h2>
         <input type="file" id="photo-upload" name="photo" accept="image/*" required />
@@ -83,8 +89,8 @@
     </section>
 
     <!-- Sección de Noticias -->
-    <section id="news-section" class="section news">
-      <h2>Latest News</h2>
+    <section id="news-section" class="section news hidden">
+      <h1>Latest News</h1>
       <div id="news-container"></div>
     </section>
 

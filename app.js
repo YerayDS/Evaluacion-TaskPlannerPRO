@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log(payload);  // Verifica que el payload tenga la propiedad `role` correctamente asignada.
+        console.log(payload);  
         if (payload.role === 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => {
                 el.classList.remove('hidden');
@@ -44,6 +44,25 @@ document.addEventListener("DOMContentLoaded", () => {
         loadEvents();
         getNews(); 
         loadPhotos(); 
+
+        const navButtons = document.querySelectorAll(".section-nav button");
+
+        navButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const sectionId = button.dataset.section;
+                showSection(sectionId);
+
+                navButtons.forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+            });
+        });
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll("main > section");
+            sections.forEach(section => section.classList.add("hidden"));
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.remove("hidden");
+        }
 
         const taskForm = document.getElementById("task-form");
         if (taskForm) {
@@ -92,7 +111,6 @@ function loadPhotos() {
                     const photoItem = document.createElement("div");
                     photoItem.classList.add("photo-item");
 
-                    // Asegúrate de que el rol se lee correctamente
                     console.log('Rol en localStorage:', localStorage.getItem('role'));
 
                     const deleteButton = localStorage.getItem("role") === "admin" ? `

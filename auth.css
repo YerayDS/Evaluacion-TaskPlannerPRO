@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #e6f0fa; /* Azul claro de fondo */
+    background-color: #e6f0fa; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,7 +13,7 @@ body {
     padding: 3rem 2rem;
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    width: 380px; /* Aumentado */
+    width: 380px;
     text-align: center;
 }
 
@@ -33,7 +33,7 @@ body {
 
 .auth-form button {
     padding: 0.75rem;
-    background-color: #007BFF; /* Azul principal */
+    background-color: #007BFF; 
     color: white;
     border: none;
     border-radius: 8px;
@@ -43,7 +43,7 @@ body {
 }
 
 .auth-form button:hover {
-    background-color: #0056b3; /* Azul más oscuro al pasar el mouse */
+    background-color: #0056b3; 
 }
 
 .form-toggle {

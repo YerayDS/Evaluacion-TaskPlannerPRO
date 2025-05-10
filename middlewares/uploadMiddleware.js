@@ -2,7 +2,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Crear la carpeta "uploads" si no existe
 const uploadDir = "./uploads";
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);

@@ -7,22 +7,23 @@ export const registerUser = async (req, res) => {
     try {
         const { email, password, role = 'user' } = req.body;
 
+        console.log("Datos recibidos en registro:", req.body);
+        console.log("Rol recibido:", role);
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'El usuario ya existe' });
         }
 
-        console.log("Datos recibidos en registro:", req.body);
-        console.log("Contraseña recibida:", password);
-
         const hashedPassword = await bcrypt.hash(password, 10);
-        console.log("Hash generado para la contraseña:", hashedPassword);
 
         const newUser = await User.create({
             email,
-            password, 
+            password: password, 
             role
-          });
+        });
+
+        console.log("Usuario creado:", newUser);
 
         await sendWelcomeEmail(email);
 
@@ -35,16 +36,15 @@ export const registerUser = async (req, res) => {
             token
         });
     } catch (error) {
-        console.error("Error en el registro:", error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
 
 
+
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
-    // Elimina espacios antes y después de la contraseña proporcionada
     const passwordProvided = password.trim();
 
     console.log("Intentando login con:", email, passwordProvided);
@@ -58,7 +58,6 @@ export const loginUser = async (req, res) => {
 
         console.log("Usuario encontrado:", user);
 
-        // Comparar la contraseña proporcionada con el hash almacenado en la base de datos
         const isMatch = await bcrypt.compare(passwordProvided, user.password);
         console.log("¿La contraseña coincide?:", isMatch);
         console.log("Contraseña proporcionada:", passwordProvided);

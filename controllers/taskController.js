@@ -61,6 +61,10 @@ export async function loadTasks() {
 }
 
 async function renderTasks(tasks = []) {
+  const pendingColumn = document.getElementById("pending-column");
+  const inProgressColumn = document.getElementById("inprogress-column");
+  const completedColumn = document.getElementById("completed-column");
+
   const pendingList = document.getElementById("pending-tasks");
   const inProgressList = document.getElementById("inprogress-tasks");
   const completedList = document.getElementById("completed-tasks");
@@ -84,7 +88,6 @@ async function renderTasks(tasks = []) {
         <button onclick="deleteTask('${task._id}')">Delete</button>` : ""}
     `;
 
-    // Asignar las tareas a sus respectivas columnas sin mostrar el estado
     if (task.status === "pending") {
       pendingList.appendChild(taskItem);
     } else if (task.status === "inprogress") {
@@ -93,6 +96,33 @@ async function renderTasks(tasks = []) {
       completedList.appendChild(taskItem);
     }
   });
+
+  const filterValue = document.getElementById("task-filter").value;
+
+  if (filterValue === "all") {
+    pendingColumn.classList.remove("hidden");
+    inProgressColumn.classList.remove("hidden");
+    completedColumn.classList.remove("hidden");
+  } else {
+    pendingColumn.classList.toggle("hidden", filterValue !== "pending");
+    inProgressColumn.classList.toggle("hidden", filterValue !== "inprogress");
+    completedColumn.classList.toggle("hidden", filterValue !== "completed");
+  }
+
+  if (pendingList.children.length === 0) pendingColumn.classList.add("hidden");
+  if (inProgressList.children.length === 0) inProgressColumn.classList.add("hidden");
+  if (completedList.children.length === 0) completedColumn.classList.add("hidden");
+
+  const columnsWrapper = document.getElementById("columns-wrapper");
+  const visibleColumns = [pendingColumn, inProgressColumn, completedColumn].filter(
+    col => !col.classList.contains("hidden")
+  );
+
+  if (visibleColumns.length === 1) {
+    columnsWrapper.classList.add("centered-column");
+  } else {
+    columnsWrapper.classList.remove("centered-column");
+  }
 }
 
 export async function filterTasks() {
